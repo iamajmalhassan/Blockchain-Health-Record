@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0 <=0.7.0;
+pragma solidity 0.6.10;
 //SPDX-License-Identifier: GPL-3.0
 
 contract Record{
@@ -8,33 +8,26 @@ contract Record{
         uint256 id;
         string name;
         uint64 age;
-        string gender;
+        bool gender; //0:Male, 1:Female
         bool testResult; //0: Negative, 1: Positive
     }
-    mapping(address => patient) record;
+    mapping(address => patient) record; //Storing patient records in a mapping of structures
     constructor() public {
         owner=msg.sender;
     }
     
-    //create or change Patient record
-    function createRecord(uint256 _id, string memory _name,uint64 _age, string memory _gender, uint8 _testResult) public     
+    //create or change Patient record (for the patient)
+    function createRecord(uint256 _id, string memory _name,uint64 _age, bool _gender, bool _testResult) public     
     {
-        if(_testResult==0)
-        {
-            record[msg.sender]= patient(_id,_name,_age,_gender,false);
-        }
-        else
-        {
-            record[msg.sender]= patient(_id,_name,_age,_gender,true);
-        }
+        record[msg.sender]= patient(_id,_name,_age,_gender,_testResult);
     }
     
     //changeRecord function for the owner and the doctor
-    function changePatientRecord(uint256 _id, string memory _name,uint64 _age, string memory _gender, bool _testResult) public
+    function changePatientRecord(address _patient,uint256 _id, string memory _name,uint64 _age, bool _gender, bool _testResult) public
     {
-        if(msg.sender==owner || doctor[msg.sender]==true)
+        if(msg.sender==owner || doctor[msg.sender]==true) //Only owner or doctor can use this function.
         {
-            record[msg.sender]= patient(_id,_name,_age,_gender,_testResult);
+            record[_patient]= patient(_id,_name,_age,_gender,_testResult);
         }
         else
         {
@@ -44,7 +37,8 @@ contract Record{
     
     //Only the patient, the doctor or the owner can view the patient's record.
     //I am using function overloading: one function for the onwer and doctor and another function for the patient.
-    function viewRecord(address _patient) view public returns(uint256 id, string memory name,uint64 age, string memory gender, bool testResult)
+    //viewRecord function for the owner and doctor
+    function viewRecord(address _patient) view public returns(uint256 id, string memory name,uint64 age, bool gender, bool testResult)
     {
         if(doctor[msg.sender]==true || msg.sender==owner)
         {
@@ -55,10 +49,13 @@ contract Record{
             revert();
         }
     }
-    function viewRecord() view public returns(uint256 id, string memory name,uint64 age, string memory gender, bool testResult)
+    
+    //viewRecord function for the patient
+    function viewRecord() view public returns(uint256 id, string memory name,uint64 age, bool gender, bool testResult)
     {
         return(record[msg.sender].id,record[msg.sender].name,record[msg.sender].age,record[msg.sender].gender,record[msg.sender].testResult);
     }
+    
     //only owner can assign doctors.
     function elevatePermission(address _doctor) public
     {
