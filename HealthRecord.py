@@ -4,11 +4,12 @@ import time
 import sys
 from eth_account import Account
 
+#I am using Ganache; You can use your Infura link as url
 url = "HTTP://127.0.0.1:7545"
 web3 = Web3(Web3.HTTPProvider(url))
 account = input("Enter your account number : ")
 
-# I am using hosted private keys, so I don't need to sign transactions. So, I am asking the user's private key to verify the account.
+# I am using hosted private keys(Ganache), so I don't need to sign transactions. So, I am asking the user's private key to verify the account.
 # This is not recommended, but I am excusing myself as it is just for demo purpose.
 pvtKey = input("Enter your Private key : ")
 acct = Account.from_key(pvtKey)
@@ -32,6 +33,7 @@ def admin(account):
 		print("2. Change a Patient's Health Record.")
 		print("3. Check whether given Address is a Doctor.")
 		print("4. Exit")
+		
 		#Only owner has permission to assign doctors.
 		#The smart contract also prevents patient and doctors from using the 'elevatePermission' function.
 		if(account==owner):
